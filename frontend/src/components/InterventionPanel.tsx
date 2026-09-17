@@ -1,5 +1,18 @@
 // ResiliNet – InterventionPanel: What-if options & comparison
+// Memoized; props and API payloads unchanged.
 
+import { memo } from "react";
+import {
+  BadgeCheck,
+  Check,
+  Crosshair,
+  Pause,
+  Plus,
+  Shield,
+  Shuffle,
+  Wrench,
+} from "lucide-react";
+import type { LucideIcon } from "lucide-react";
 import type { InterventionOption, ImpactMetrics, InterventionType } from "../types";
 import { formatNumber, formatHours, resilienceColor } from "../utils/helpers";
 
@@ -13,14 +26,14 @@ interface InterventionPanelProps {
   loading: boolean;
 }
 
-const INTERVENTION_ICONS: Record<string, string> = {
-  REPAIR: "🔧",
-  REROUTE: "🔀",
-  REINFORCE: "🛡️",
-  ADD_CONNECTION: "🔗",
+const INTERVENTION_ICONS: Record<string, LucideIcon> = {
+  REPAIR: Wrench,
+  REROUTE: Shuffle,
+  REINFORCE: Shield,
+  ADD_CONNECTION: Plus,
 };
 
-export function InterventionPanel({
+export const InterventionPanel = memo(function InterventionPanel({
   options,
   baseMetrics,
   recommendation,
@@ -34,16 +47,20 @@ export function InterventionPanel({
   return (
     <div className="intervention-panel">
       <h3 className="panel-title">
-        <span className="panel-title-icon">🎯</span>
-        Compare Interventions
+        <span className="panel-title-icon" aria-hidden="true">
+          <Crosshair size={15} strokeWidth={2} />
+        </span>
+        Compare interventions
       </h3>
 
       {/* Recommendation */}
       {recommendation && recommendationExplanation && (
         <div className="recommendation-box">
           <div className="recommendation-header">
-            <span className="recommendation-icon">✨</span>
-            <span className="recommendation-title">Recommended Intervention</span>
+            <span className="recommendation-icon" aria-hidden="true">
+              <BadgeCheck size={15} strokeWidth={2} />
+            </span>
+            <span className="recommendation-title">Recommended intervention</span>
           </div>
           <div className="recommendation-text">
             {recommendationExplanation.split("\n").map((line, i) => (
@@ -58,9 +75,11 @@ export function InterventionPanel({
         {/* Do Nothing baseline */}
         <div className={`intervention-card ${!activeIntervention ? "active" : ""}`}>
           <div className="intervention-card-header">
-            <span className="intervention-icon">⚠️</span>
+            <span className="intervention-icon" aria-hidden="true">
+              <Pause size={16} strokeWidth={2} />
+            </span>
             <div>
-              <span className="intervention-label">Do Nothing</span>
+              <span className="intervention-label">Do nothing</span>
               <span className="intervention-desc">No intervention applied</span>
             </div>
           </div>
@@ -79,16 +98,17 @@ export function InterventionPanel({
           const m = opt.metrics;
           const popDiff = baseMetrics.population_affected - m.population_affected;
           const resDiff = m.resilience_score - baseMetrics.resilience_score;
+          const OptIcon = INTERVENTION_ICONS[opt.intervention_type] || Wrench;
 
           return (
             <div
               key={opt.intervention_type}
               className={`intervention-card ${isActive ? "active" : ""} ${isRecommended ? "recommended" : ""}`}
             >
-              {isRecommended && <span className="recommended-badge">★ Recommended</span>}
+              {isRecommended && <span className="recommended-badge">Recommended</span>}
               <div className="intervention-card-header">
-                <span className="intervention-icon">
-                  {INTERVENTION_ICONS[opt.intervention_type] || "🔧"}
+                <span className="intervention-icon" aria-hidden="true">
+                  <OptIcon size={16} strokeWidth={2} />
                 </span>
                 <div>
                   <span className="intervention-label">{opt.label}</span>
@@ -113,11 +133,23 @@ export function InterventionPanel({
                 />
               </div>
               <button
+                type="button"
                 className="btn-apply-intervention"
                 onClick={() => onRunIntervention(opt.intervention_type, opt.target_asset_id)}
                 disabled={loading || isActive}
+                aria-busy={loading && !isActive}
               >
-                {isActive ? "✓ Applied" : "Apply Intervention"}
+                {isActive ? (
+                  <span className="btn-loading">
+                    <Check size={13} strokeWidth={2.5} aria-hidden="true" /> Applied
+                  </span>
+                ) : loading ? (
+                  <span className="btn-loading">
+                    <span className="inline-spinner" aria-hidden="true" /> Applying
+                  </span>
+                ) : (
+                  "Apply intervention"
+                )}
               </button>
             </div>
           );
@@ -125,7 +157,7 @@ export function InterventionPanel({
       </div>
     </div>
   );
-}
+});
 
 function MetricRow({
   label,

@@ -1,5 +1,8 @@
 // ResiliNet – ScenarioComparison: Recharts bar chart + comparison table
+// Memoized; chart data logic unchanged.
 
+import { memo, useMemo } from "react";
+import { BadgeCheck, ChartColumn } from "lucide-react";
 import {
   BarChart,
   Bar,
@@ -18,40 +21,45 @@ interface ScenarioComparisonProps {
   recommendation: string | null;
 }
 
-export function ScenarioComparison({
+export const ScenarioComparison = memo(function ScenarioComparison({
   baseMetrics,
   options,
   recommendation,
 }: ScenarioComparisonProps) {
-  if (!options || options.length === 0) return null;
+  const chartData = useMemo(() => {
+    if (!options || options.length === 0) return [];
+    return [
+      {
+        name: "Do Nothing",
+        population: baseMetrics.population_affected,
+        assets: baseMetrics.affected_assets,
+        delay: baseMetrics.average_delay,
+        resilience: baseMetrics.resilience_score,
+      },
+      ...options.map((opt) => ({
+        name: opt.label.length > 18 ? opt.label.substring(0, 16) + "…" : opt.label,
+        population: opt.metrics.population_affected,
+        assets: opt.metrics.affected_assets,
+        delay: opt.metrics.average_delay,
+        resilience: opt.metrics.resilience_score,
+      })),
+    ];
+  }, [baseMetrics, options]);
 
-  const chartData = [
-    {
-      name: "Do Nothing",
-      population: baseMetrics.population_affected,
-      assets: baseMetrics.affected_assets,
-      delay: baseMetrics.average_delay,
-      resilience: baseMetrics.resilience_score,
-    },
-    ...options.map((opt) => ({
-      name: opt.label.length > 18 ? opt.label.substring(0, 16) + "…" : opt.label,
-      population: opt.metrics.population_affected,
-      assets: opt.metrics.affected_assets,
-      delay: opt.metrics.average_delay,
-      resilience: opt.metrics.resilience_score,
-    })),
-  ];
+  if (!options || options.length === 0) return null;
 
   return (
     <div className="scenario-comparison">
       <h3 className="panel-title">
-        <span className="panel-title-icon">📊</span>
-        Scenario Comparison
+        <span className="panel-title-icon" aria-hidden="true">
+          <ChartColumn size={15} strokeWidth={2} />
+        </span>
+        Scenario comparison
       </h3>
 
       {/* Bar Chart */}
       <div className="chart-container">
-        <h4 className="chart-subtitle">Resilience Score by Scenario</h4>
+        <h4 className="chart-subtitle">Resilience score by scenario</h4>
         <ResponsiveContainer width="100%" height={220}>
           <BarChart data={chartData} margin={{ top: 5, right: 10, left: -10, bottom: 5 }}>
             <CartesianGrid strokeDasharray="3 3" stroke="#334155" />
@@ -82,14 +90,14 @@ export function ScenarioComparison({
 
       {/* Comparison Table */}
       <div className="comparison-table-wrapper">
-        <h4 className="chart-subtitle">Detailed Comparison</h4>
+        <h4 className="chart-subtitle">Detailed comparison</h4>
         <table className="comparison-table">
           <thead>
             <tr>
               <th>Scenario</th>
-              <th>Pop. Affected</th>
+              <th>Pop affected</th>
               <th>Assets</th>
-              <th>Avg Delay</th>
+              <th>Avg delay</th>
               <th>Recovery</th>
               <th>Resilience</th>
             </tr>
@@ -108,7 +116,11 @@ export function ScenarioComparison({
               return (
                 <tr key={opt.intervention_type} className={isRec ? "recommended-row" : ""}>
                   <td>
-                    {isRec && <span className="rec-star">★ </span>}
+                    {isRec && (
+                      <span className="rec-star" aria-label="Recommended">
+                        <BadgeCheck size={11} strokeWidth={2.5} aria-hidden="true" />
+                      </span>
+                    )}
                     {opt.label}
                   </td>
                   <td className={opt.metrics.population_affected === 0 ? "table-success" : ""}>
@@ -134,4 +146,4 @@ export function ScenarioComparison({
       </div>
     </div>
   );
-}
+});

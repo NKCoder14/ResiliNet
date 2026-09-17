@@ -1,6 +1,7 @@
 // ResiliNet – MapView component: Leaflet interactive map
+// Props / rendering logic unchanged; memoized to avoid re-renders from panels.
 
-import { useEffect, useRef } from "react";
+import { memo, useEffect, useMemo, useRef } from "react";
 import { MapContainer, TileLayer, CircleMarker, Polyline, Popup, useMap } from "react-leaflet";
 import type { InfrastructureAsset, Edge, SimulationResult } from "../types";
 import { AssetType } from "../types";
@@ -85,7 +86,7 @@ function MapController({ selectedAssetId, nodes }: { selectedAssetId: string | n
   return null;
 }
 
-export function MapView({
+export const MapView = memo(function MapView({
   nodes,
   edges,
   selectedAssetId,
@@ -106,10 +107,13 @@ export function MapView({
     return node ? [node.latitude, node.longitude] : null;
   };
 
-  const activeResult = interventionResult || simulationResult;
+  const activeResult = useMemo(
+    () => interventionResult || simulationResult,
+    [interventionResult, simulationResult]
+  );
 
   return (
-    <div className="map-container">
+    <div className="map-container" role="application" aria-label="Infrastructure network map">
       <MapContainer
         center={CENTER}
         zoom={ZOOM}
@@ -169,29 +173,7 @@ export function MapView({
               }}
             >
               <Popup>
-                <div className="map-popup-card">
-                  <div className="popup-title">
-                    <span>{ASSET_TYPE_ICONS[node.type]}</span>
-                    <span>{node.name}</span>
-                  </div>
-                  <div className="popup-type">{node.type.replace(/_/g, " ")}</div>
-                  <div className="popup-stats">
-                    <span>Status</span>
-                    <strong style={{ color }}>{status}</strong>
-                  </div>
-                  <div className="popup-stats">
-                    <span>Criticality</span>
-                    <strong>{node.criticality.toFixed(1)}/100</strong>
-                  </div>
-                  <div className="popup-stats">
-                    <span>Pop. Served</span>
-                    <strong>{node.population_served.toLocaleString()}</strong>
-                  </div>
-                  <div className="popup-stats">
-                    <span>Capacity</span>
-                    <strong>{node.capacity} units</strong>
-                  </div>
-                </div>
+                <MapPopup node={node} status={status} color={color} />
               </Popup>
             </CircleMarker>
           );
@@ -207,6 +189,45 @@ export function MapView({
             <span>{label.charAt(0) + label.slice(1).toLowerCase()}</span>
           </div>
         ))}
+      </div>
+    </div>
+  );
+});
+
+function MapPopup({
+  node,
+  status,
+  color,
+}: {
+  node: InfrastructureAsset;
+  status: string;
+  color: string;
+}) {
+  const TypeIcon = ASSET_TYPE_ICONS[node.type];
+  return (
+    <div className="map-popup-card">
+      <div className="popup-title">
+        <span className="popup-title-icon" aria-hidden="true">
+          <TypeIcon size={13} strokeWidth={2.25} />
+        </span>
+        <span>{node.name}</span>
+      </div>
+      <div className="popup-type">{node.type.replace(/_/g, " ")}</div>
+      <div className="popup-stats">
+        <span>Status</span>
+        <strong style={{ color }}>{status}</strong>
+      </div>
+      <div className="popup-stats">
+        <span>Criticality</span>
+        <strong>{node.criticality.toFixed(1)}/100</strong>
+      </div>
+      <div className="popup-stats">
+        <span>Pop served</span>
+        <strong>{node.population_served.toLocaleString()}</strong>
+      </div>
+      <div className="popup-stats">
+        <span>Capacity</span>
+        <strong>{node.capacity} units</strong>
       </div>
     </div>
   );

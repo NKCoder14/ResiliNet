@@ -1,27 +1,19 @@
-/* ResiliNet – Global Design System & Reset */
+@import 'tailwindcss';
 
 :root {
-  --bg-main: #070a12;
-  --bg-surface: #0f172a;
-  --bg-surface-elevated: #1e293b;
-  --bg-card: rgba(15, 23, 42, 0.85);
-  --bg-glass: rgba(15, 23, 42, 0.65);
-  --border-subtle: rgba(255, 255, 255, 0.08);
-  --border-focus: rgba(34, 211, 238, 0.5);
-
-  --text-primary: #f8fafc;
-  --text-secondary: #94a3b8;
-  --text-muted: #64748b;
-
-  --accent-cyan: #22d3ee;
-  --accent-cyan-glow: rgba(34, 211, 238, 0.25);
-  --accent-emerald: #10b981;
-  --accent-red: #ef4444;
-  --accent-red-glow: rgba(239, 68, 68, 0.3);
+  color-scheme: dark;
+  --background: #0b1220;
+  --foreground: #f8fafc;
+  --card: #111827;
+  --card-foreground: #f8fafc;
+  --border: #243044;
+  --primary: #5ee7d4;
+  --primary-glow: rgba(94, 231, 212, 0.15);
+  --muted-foreground: #7f8da3;
+  --accent-emerald: #22c55e;
   --accent-amber: #f59e0b;
+  --accent-red: #ef4444;
   --accent-purple: #a855f7;
-  --accent-purple-glow: rgba(168, 85, 247, 0.25);
-
   --font-sans: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   --font-mono: 'JetBrains Mono', monospace;
 }
@@ -30,14 +22,15 @@
   box-sizing: border-box;
   margin: 0;
   padding: 0;
+  border-color: var(--border);
 }
 
 html, body {
   width: 100%;
   height: 100%;
   overflow: hidden;
-  background-color: var(--bg-main);
-  color: var(--text-primary);
+  background-color: var(--background);
+  color: var(--foreground);
   font-family: var(--font-sans);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
@@ -58,16 +51,16 @@ html, body {
 }
 
 ::-webkit-scrollbar-track {
-  background: rgba(15, 23, 42, 0.5);
+  background: rgba(17, 24, 39, 0.5);
 }
 
 ::-webkit-scrollbar-thumb {
-  background: rgba(100, 116, 139, 0.35);
+  background: rgba(127, 141, 163, 0.35);
   border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: rgba(100, 116, 139, 0.6);
+  background: rgba(127, 141, 163, 0.6);
 }
 
 /* Button & interactive resets */
@@ -82,4 +75,28 @@ button {
 button:disabled {
   cursor: not-allowed;
   opacity: 0.5;
+}
+
+select {
+  font-family: inherit;
+}
+
+/* Focus visible for accessibility */
+:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+}
+
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* Selection */
+::selection {
+  background: var(--primary-glow);
+  color: var(--foreground);
 }

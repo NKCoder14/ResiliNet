@@ -1,5 +1,8 @@
 // ResiliNet – ExplainPanel: "Why did this happen?" propagation path & reasoning
+// Memoized; rendering logic unchanged.
 
+import { memo } from "react";
+import { Waypoints } from "lucide-react";
 import type { SimulationResult } from "../types";
 import { SEVERITY_COLORS } from "../utils/helpers";
 
@@ -7,7 +10,7 @@ interface ExplainPanelProps {
   simulationResult: SimulationResult | null;
 }
 
-export function ExplainPanel({ simulationResult }: ExplainPanelProps) {
+export const ExplainPanel = memo(function ExplainPanel({ simulationResult }: ExplainPanelProps) {
   if (!simulationResult) return null;
 
   const { propagation_paths, propagation_steps } = simulationResult;
@@ -15,14 +18,16 @@ export function ExplainPanel({ simulationResult }: ExplainPanelProps) {
   return (
     <div className="explain-panel">
       <h3 className="panel-title">
-        <span className="panel-title-icon">🔍</span>
-        Why Did It Propagate?
+        <span className="panel-title-icon" aria-hidden="true">
+          <Waypoints size={15} strokeWidth={2} />
+        </span>
+        Why did it propagate?
       </h3>
 
       {/* Propagation path visualization */}
       {propagation_paths.length > 0 && (
         <div className="propagation-paths">
-          <h4 className="propagation-paths-title">Failure Propagation Paths</h4>
+          <h4 className="propagation-paths-title">Failure propagation paths</h4>
           {propagation_paths.map((path, i) => (
             <div key={i} className="propagation-path">
               {path.map((nodeId, j) => (
@@ -30,7 +35,7 @@ export function ExplainPanel({ simulationResult }: ExplainPanelProps) {
                   <span className={`path-node ${j === 0 ? "failed" : "affected"}`}>
                     {nodeId.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase())}
                   </span>
-                  {j < path.length - 1 && <span className="path-arrow">→</span>}
+                  {j < path.length - 1 && <span className="path-arrow" aria-hidden="true">&rarr;</span>}
                 </span>
               ))}
             </div>
@@ -41,7 +46,7 @@ export function ExplainPanel({ simulationResult }: ExplainPanelProps) {
       {/* Step-by-step reasoning */}
       {propagation_steps.length > 0 && (
         <div className="propagation-steps">
-          <h4 className="propagation-steps-title">Step-by-Step Analysis</h4>
+          <h4 className="propagation-steps-title">Step-by-step analysis</h4>
           {propagation_steps.map((step, i) => (
             <div key={i} className="propagation-step">
               <div className="step-header">
@@ -61,8 +66,8 @@ export function ExplainPanel({ simulationResult }: ExplainPanelProps) {
       )}
 
       <div className="explain-disclaimer">
-        ⚠ Simulation-based impact estimate. Not a validated disaster model.
+        Simulation-based impact estimate. Not a validated disaster model.
       </div>
     </div>
   );
-}
+});

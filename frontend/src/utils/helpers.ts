@@ -1,5 +1,7 @@
 // ResiliNet – helper utilities, color maps, formatters
 
+import { Bridge, Droplets, Hospital, Route, Siren, Zap } from "lucide-react";
+import type { LucideIcon } from "lucide-react";
 import { AssetType, AssetStatus, Severity } from "../types";
 
 // Asset type colors
@@ -12,14 +14,14 @@ export const ASSET_TYPE_COLORS: Record<AssetType, string> = {
   [AssetType.EMERGENCY_FACILITY]: "#ef4444", // red
 };
 
-// Asset type icons (emoji fallback)
-export const ASSET_TYPE_ICONS: Record<AssetType, string> = {
-  [AssetType.BRIDGE]: "🌉",
-  [AssetType.ROAD]: "🛣️",
-  [AssetType.HOSPITAL]: "🏥",
-  [AssetType.POWER]: "⚡",
-  [AssetType.WATER]: "💧",
-  [AssetType.EMERGENCY_FACILITY]: "🚒",
+// Asset type icons (Lucide)
+export const ASSET_TYPE_ICONS: Record<AssetType, LucideIcon> = {
+  [AssetType.BRIDGE]: Bridge,
+  [AssetType.ROAD]: Route,
+  [AssetType.HOSPITAL]: Hospital,
+  [AssetType.POWER]: Zap,
+  [AssetType.WATER]: Droplets,
+  [AssetType.EMERGENCY_FACILITY]: Siren,
 };
 
 // Status colors

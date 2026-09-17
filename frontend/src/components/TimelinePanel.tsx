@@ -1,5 +1,8 @@
 // ResiliNet – TimelinePanel: Event timeline (T+0, T+2, T+5…)
+// Memoized; rendering logic unchanged.
 
+import { memo } from "react";
+import { ListOrdered } from "lucide-react";
 import type { PropagationStep } from "../types";
 import { SEVERITY_COLORS } from "../utils/helpers";
 
@@ -7,19 +10,21 @@ interface TimelinePanelProps {
   timeline: PropagationStep[];
 }
 
-export function TimelinePanel({ timeline }: TimelinePanelProps) {
+export const TimelinePanel = memo(function TimelinePanel({ timeline }: TimelinePanelProps) {
   if (!timeline || timeline.length === 0) return null;
 
   return (
     <div className="timeline-panel">
       <h3 className="panel-title">
-        <span className="panel-title-icon">📋</span>
-        Event Timeline
+        <span className="panel-title-icon" aria-hidden="true">
+          <ListOrdered size={15} strokeWidth={2} />
+        </span>
+        Event timeline
       </h3>
       <div className="timeline">
         {timeline.map((step, i) => (
-          <div key={i} className="timeline-event" style={{ animationDelay: `${i * 0.15}s` }}>
-            <div className="timeline-marker">
+          <div key={i} className="timeline-event">
+            <div className="timeline-marker" aria-hidden="true">
               <div
                 className="timeline-dot"
                 style={{ backgroundColor: SEVERITY_COLORS[step.severity] }}
@@ -47,4 +52,4 @@ export function TimelinePanel({ timeline }: TimelinePanelProps) {
       </div>
     </div>
   );
-}
+});
